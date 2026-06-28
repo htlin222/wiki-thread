@@ -1,54 +1,107 @@
-# wiki-thread — doomscroll your Obsidian vault like Threads
+# wiki-thread
 
-Turn a folder of `.md` notes into a Threads-style feed you can scroll to study.
-Zero dependencies — just Node.
+**Doomscroll your own Obsidian vault like it's Threads.** Point a tiny local server at a folder of
+Markdown notes and browse them as an infinite, social-media-style feed — so reviewing your own
+knowledge feels like the thing your brain already craves.
 
-## Run
+Each `.md` is a post. Links between notes become threaded replies. Liking, saving, reposting, and
+replying all **write back into the actual `.md` files**, so your vault stays the single source of truth.
+
+> The idea: studying your notes fails because notes are write-only. Reframe the vault as a feed and
+> "review" turns into scrolling. Spaced-repetition by vibes.
+
+![feed](assets/feed.jpg)
+
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![deps: zero](https://img.shields.io/badge/runtime%20deps-0-brightgreen)
+![node](https://img.shields.io/badge/node-%E2%89%A518-339933)
+![tests: 16 passing](https://img.shields.io/badge/playwright-16%20passing-success)
+
+## Quick start
 
 ```bash
-node server.js [vaultDir] [port]   # defaults: ./vault  4173
+git clone https://github.com/<you>/wiki-thread.git
+cd wiki-thread
+node server.js            # serves the bundled sample vault on http://localhost:4173
 ```
 
-Open <http://localhost:4173>.
+No install, no build — the server uses **only Node built-ins**. Point it at your real vault:
+
+```bash
+node server.js ~/Obsidian/MyVault          # custom vault
+node server.js ~/Obsidian/MyVault 8080     # custom vault + port
+```
+
+The only thing it adds to your vault is a gitignorable `.wiki-thread/` sidecar (view counts).
+Everything else is plain Markdown edits you can see in Obsidian.
+
+## Features
+
+- 📜 **Infinite feed** of your notes — "For you" (relevance) and "Following" (newest).
+- 🧵 **Threads** — a `[link](other.md)` or `[[wikilink]]` turns the linked note into a reply.
+- ❤️ 🔖 🔁 💬 **Interactions write back to Markdown** — like→`#liked`, save→`#saved`, repost→`#reposted` + `reposts.md`, reply→new note in `replies/` linked into the parent.
+- ✍️ **Compose** top-level notes (`posts/`) and replies, with `@`-mention autocomplete.
+- 🔍 **Full-text search** over an inverted index — ranked by title/body/author/tags, with snippets, highlighting, and `#tag` filters.
+- 🖼️ **Inline images** (`![](pic.png)` served from the vault) with a **lightbox** (zoom + pan).
+- 🔗 **Real URLs** — `/@author/post/<note>` and `/…/media`, with working browser back/forward and deep-link refresh.
+- 🧭 **Threads-style UI** — labeled sidebar, Lucide icons, dim/light themes, `⋯` menu with **Open in Obsidian**.
+- 🪶 **Zero runtime dependencies**, single ~700-line server, single HTML file.
+
+| Search | Lightbox | Post menu |
+|---|---|---|
+| ![search](assets/search.jpg) | ![lightbox](assets/lightbox.jpg) | ![menu](assets/menu.jpg) |
 
 ## How notes map to the feed
 
-| Vault thing | Feed thing |
+| Vault | Feed |
 |---|---|
-| each `.md` file | a post |
-| `[text](other.md)` / `[[other]]` inside a note | a **reply** threaded under it |
-| `![alt](pic.png)` | an inline image (served from the vault) |
+| each `.md` file | a post (id = vault-relative path) |
+| `[text](other.md)` / `[[other]]` | a threaded **reply** under it |
+| `![alt](pic.png)` | inline image (served from `/vault/…`) |
 | `@slug` | a mention link to that note |
-| frontmatter `author`, `time`, `tags` | name, timestamp, hashtags |
+| frontmatter `author`, `time`, `title`, `tags` | name, timestamp, title, hashtags |
 | inline `#tag` | hashtag |
 
-## Navigation (Threads sidebar)
+Example note:
 
-- **Home** — the For you / Following feed
-- **New thread** — write a brand-new top-level note (`posts/…md`)
-- **Search** — filter and jump to any note
-- **Activity** — notes you've liked
-- **Saved** — notes you've reposted
-- **Profile** — notes by your main author
-
-On narrow screens the sidebar collapses to a bottom icon bar.
-
-## Interactions (write back into the vault)
-
-- **♥ Like** → adds `liked` to the note's frontmatter `tags`. Drives **For you** (TF-IDF + shared tags + link adjacency to everything you've liked).
-- **🔁 Repost** → tags `reposted` and logs a link in `reposts.md`.
-- **💬 Reply** → creates a note in `replies/` (with `author`+`time`) and appends a `[link]` into the parent so it threads.
-- **New thread** → creates a note in `posts/`.
-- **@-autocomplete** in the composer searches the vault.
-- **Views** are counted in `vault/.wiki-thread/state.json` (notes stay clean).
-- Editing a note in Obsidian live-reindexes the open feed.
-
-Share / bookmark / DM are intentionally omitted.
-
-## Point it at your real vault
-
-```bash
-node server.js ~/Obsidian/MyVault
+```markdown
+---
+author: Hermann Ebbinghaus
+time: 2026-06-22T08:05:00
+tags: [memory, science]
+---
+We forget on a curve. Each successful recall flattens the next one —
+the whole reason @spaced-repetition works.
 ```
 
-The `.wiki-thread/` sidecar is the only thing it adds; likes/replies/reposts/posts are plain Markdown edits.
+## How it works
+
+```
+Obsidian vault (.md)  ──read/write──►  server.js (in-memory index)  ──HTTP/JSON──►  browser (Threads UI)
+```
+
+- `server.js` parses frontmatter + body, builds an in-memory index and an inverted search index, and
+  re-indexes on file changes. **"For you"** ranks by TF-IDF similarity to the centroid of your liked notes
+  (plus tag-overlap and link-adjacency); cold start is recency.
+- `public/index.html` is the whole frontend — vanilla JS, no framework, no bundler.
+
+See [`CLAUDE.md`](CLAUDE.md) for the full architecture and extension guide.
+
+## Testing
+
+```bash
+pnpm install      # only dev dep: @playwright/test
+pnpm test         # 16-test Playwright smoke suite
+```
+
+Tests run against a throwaway copy of the vault, so your real notes are never touched.
+
+## Contributing
+
+Issues and PRs welcome. Keep the server **dependency-free** and the frontend **build-free** — that
+simplicity is the point. New post actions / sidebar views / `⋯` items each have a one-paragraph recipe
+in [`CLAUDE.md`](CLAUDE.md). Please add a Playwright test for behavior changes.
+
+## License
+
+[MIT](LICENSE) © Hsien-Tang Lin

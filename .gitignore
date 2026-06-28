@@ -15,3 +15,6 @@ _extract/
 # misc
 *.log
 .DS_Store
+
+# unrelated prototype input
+files.zip
