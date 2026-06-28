@@ -1,0 +1,13 @@
+{
+  "name": "wiki-thread",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Turn an Obsidian vault into a Threads-style feed",
+  "scripts": {
+    "start": "node server.js",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0"
+  }
+}

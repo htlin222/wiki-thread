@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# test + build artifacts
+.test-vault/
+test-results/
+playwright-report/
+
+# runtime state sidecar (view counts etc. — regenerated)
+vault/.wiki-thread/
+
+# original input + extracted prototype
+_extract/
+
+# misc
+*.log
+.DS_Store
