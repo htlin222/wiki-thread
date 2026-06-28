@@ -5,7 +5,8 @@
   "description": "Turn an Obsidian vault into a Threads-style feed",
   "scripts": {
     "start": "node server.js",
-    "test": "playwright test"
+    "test": "playwright test",
+    "shots": "node scripts/screenshots.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.51.0"

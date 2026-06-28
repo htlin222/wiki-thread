@@ -10,7 +10,7 @@ replying all **write back into the actual `.md` files**, so your vault stays the
 > The idea: studying your notes fails because notes are write-only. Reframe the vault as a feed and
 > "review" turns into scrolling. Spaced-repetition by vibes.
 
-![feed](assets/feed.jpg)
+![feed](assets/feed.png)
 
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![deps: zero](https://img.shields.io/badge/runtime%20deps-0-brightgreen)
@@ -47,9 +47,11 @@ Everything else is plain Markdown edits you can see in Obsidian.
 - 🧭 **Threads-style UI** — labeled sidebar, Lucide icons, dim/light themes, `⋯` menu with **Open in Obsidian**.
 - 🪶 **Zero runtime dependencies**, single ~700-line server, single HTML file.
 
-| Search | Lightbox | Post menu |
-|---|---|---|
-| ![search](assets/search.jpg) | ![lightbox](assets/lightbox.jpg) | ![menu](assets/menu.jpg) |
+| Thread + image | Full-text search |
+|---|---|
+| ![thread](assets/thread.png) | ![search](assets/search.png) |
+| **Image lightbox** | **`⋯` post menu** |
+| ![lightbox](assets/lightbox.png) | ![menu](assets/menu.png) |
 
 ## How notes map to the feed
 
